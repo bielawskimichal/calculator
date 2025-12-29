@@ -8,6 +8,8 @@ let isResultComputed = false; // Prevent backspace on result
 const display = document.querySelector(".display");
 const buttons = document.querySelectorAll("button");
 
+// ---------------- Helper methods ----------------
+
 function displayOnDisplay(input) {
     txt = isError ? "Error" : input;
     let element = document.createTextNode(txt);
@@ -26,6 +28,7 @@ function multiply() {
 function divide() {
     if (secondNb === 0) {
         isError = true;
+        operator = null;
         return;
     } else {
         return (firstNb / secondNb);
@@ -40,21 +43,23 @@ function subtract() {
     return (firstNb - secondNb);
 }
 
+// ---------------- Mechanics ----------------
+
 function calculateResult() {
     let result = null;
     switch (operator) {
         case "x":
             result = multiply(firstNb, secondNb);
             break;
-        case "/":
-            result = divide(firstNb, secondNb);
-            break;
-        case "+":
-            result = sum(firstNb, secondNb);
-            break;
-        case "-":
-            result = subtract(firstNb, secondNb);
-            break;
+            case "/":
+                result = divide(firstNb, secondNb);
+                break;
+                case "+":
+                    result = sum(firstNb, secondNb);
+                    break;
+                    case "-":
+                        result = subtract(firstNb, secondNb);
+                        break;
         default:
             resetDisplay();
     }
@@ -69,7 +74,8 @@ function handleOperator(op) {
     } else if (display.textContent === "") {
         window.alert("Some numbers first.")
     } else if (!firstNb && op !== "=") {
-        firstNb = Number(display.textContent);
+        firstNum = display.textContent.replace(',', '.');
+        firstNb = Number(firstNum);
         operator = op;
         shouldReset = true;
     } else if (op === "=") {
@@ -77,12 +83,17 @@ function handleOperator(op) {
             window.alert("Some numbers first!")
         }
         if (firstNb !== null && operator !== null) {
-            secondNb = Number(display.textContent);
+            secondNum = display.textContent.replace(',', '.');
+            secondNb = Number(secondNum);
             let res = calculateResult();
             isResultComputed = true;
             resetDisplay();
-            displayOnDisplay(String(res));
+            displayOnDisplay(String(res).replace('.', ','));
             shouldReset = true
+            firstNb = null;
+            operator = null;
+            isError = false;
+            secondNb - null;
         }
 
     } else {
@@ -94,7 +105,15 @@ function handleOperator(op) {
 }
 
 function handleComma() {
-
+    if (display.textContent === "") {
+        window.alert("First add some numbers.");
+    } else if (display.textContent.includes(",")) {
+        window.alert("Don't be greedy - one comma is enough.");
+    } else if (isResultComputed) {
+        window.alert("You shall not change the result!");
+    } else {
+        displayOnDisplay(",");
+    }
 }
 
 function handleSignToggle() {
@@ -106,7 +125,9 @@ buttons.forEach((btn) => {
         e.preventDefault();
 
         if (shouldReset) {
+            isResultComputed = false;
             isError = false;
+            shouldReset = false;
             resetDisplay();
         }
 
